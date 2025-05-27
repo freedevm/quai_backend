@@ -12,7 +12,26 @@ connectDB();
 
 // Middleware
 app.use(express.json());
-app.use(cors({ origin: 'http://localhost:3000' }));
+// CORS configuration
+const allowedOrigins = [
+  'https://quaifly.com',
+  'http://localhost:3000', // For local development
+];
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g., mobile apps or curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS'));
+    },
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 204,
+  })
+);
 
 // Routes
 app.use('/api/auth', authRoutes);
