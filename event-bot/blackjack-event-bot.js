@@ -34,13 +34,14 @@ function parseWeiToString(weiAmount) {
   return weiAmount.toString();
 }
 
+let latestDepositRecord = await Deposit.findOne().sort({ _id: -1 });
+
 // Set up event listeners
 async function setupEventListeners(contract) {
     console.log('Setting up event listeners...');
   
     try {
       // Fetch the latest deposit record to determine the starting block
-      let latestDepositRecord = await Deposit.findOne().sort({ _id: -1 });
       const startBlockNum = latestDepositRecord?.block ? latestDepositRecord.block + 1 : 1422016; // Start from the next block
       console.log('Starting block number:', startBlockNum);
   
@@ -51,6 +52,8 @@ async function setupEventListeners(contract) {
       // Sort events by blockNumber in ascending order
       events.sort((a, b) => a.blockNumber - b.blockNumber);
   
+
+      successLastBlockNumber = latestDepositRecord;
       // Process all events
       if (events.length === 0) {
         console.log('No new Deposit events found.');
@@ -91,6 +94,8 @@ async function setupEventListeners(contract) {
           await newDepositRecord.save();
   
           console.log(`Processed Deposit event: Block=${blockNumber}, Address=${address}, Amount=${user.amount}`);
+
+          successLastBlockNumber = blockNumber;
         }
   
         // Log the latest processed block
@@ -99,39 +104,43 @@ async function setupEventListeners(contract) {
       }
   
       // Set up real-time event listener for new Deposit events
-      contract.on('Deposit', async (address, amount, event) => {
-        try {
-          const blockNumber = event.blockNumber;
+      // contract.on('Deposit', async (address, amount, event) => {
+      //   try {
+      //     const blockNumber = event.blockNumber;
   
-          // Find user
-          let user = await User.findOne({ address });
-          if (!user) {
-            console.error(`User not found for address: ${address}`);
-            return;
-          }
+      //     // Find user
+      //     let user = await User.findOne({ address });
+      //     if (!user) {
+      //       console.error(`User not found for address: ${address}`);
+      //       return;
+      //     }
   
-          // Update user balance
-          const decimals = 18;
-          user.amount += Number(amount) / 10 ** decimals;
-          await user.save();
+      //     // Update user balance
+      //     const decimals = 18;
+      //     user.amount += Number(amount) / 10 ** decimals;
+      //     await user.save();
   
-          // Save new deposit record
-          const newDepositRecord = new Deposit({
-            block: blockNumber,
-            address,
-            amount: Number(amount) / 10 ** decimals,
-          });
-          await newDepositRecord.save();
+      //     // Save new deposit record
+      //     const newDepositRecord = new Deposit({
+      //       block: blockNumber,
+      //       address,
+      //       amount: Number(amount) / 10 ** decimals,
+      //     });
+      //     await newDepositRecord.save();
   
-          console.log(`New Deposit event: Block=${blockNumber}, Address=${address}, Amount=${user.amount}`);
-        } catch (error) {
-          console.error('Error processing real-time Deposit event:', error);
-        }
-      });
+      //     console.log(`New Deposit event: Block=${blockNumber}, Address=${address}, Amount=${user.amount}`);
+      //   } catch (error) {
+      //     console.error('Error processing real-time Deposit event:', error);
+      //   }
+      // });
   
       console.log('Event listeners set up successfully.');
+
+      latestDepositRecord?.block = successLastBlockNumber + 1;
     } catch (error) {
       console.error('Error in setupEventListeners:', error);
+
+      startBlockNum += 10000;
       throw error; // Or handle as needed
     }
 }
