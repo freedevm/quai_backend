@@ -34,7 +34,7 @@ function parseWeiToString(weiAmount) {
   return weiAmount.toString();
 }
 
-let latestDepositRecordNumber;
+let latestDepositRecordNumber = 0;
 
 // Set up event listeners
 async function setupEventListeners(contract) {
@@ -140,15 +140,22 @@ async function setupEventListeners(contract) {
     } catch (error) {
       console.error('Error in setupEventListeners:', error);
 
-      latestDepositRecordNumber += 10000;
+      if (error.error.code == -32000)
+        latestDepositRecordNumber += 10000;
+      
       console.log("Next start BlockNumber", latestDepositRecordNumber);
       throw error; // Or handle as needed
     }
 }
 
 // Main function to start the bot
+
+const initBot = async () {
+  
+}
+
 async function startBot() {
-  // try {
+  try {
     // Connect to MongoDB
     await connectDB();
     
@@ -162,25 +169,27 @@ async function startBot() {
     const contractBalance = await contract.getContractBalance()
     console.log("### contract balance => ", contractBalance)
     
-    const latestDepositRecord = await Deposit.findOne().sort({ _id: -1 });
-    latestDepositRecordNumber =  latestDepositRecord?.block ? latestDepositRecord.block + 1 : 1422016
+    if (latestDepositRecordNumber == 0) {
+      const latestDepositRecord = await Deposit.findOne().sort({ _id: -1 });
+      latestDepositRecordNumber =  latestDepositRecord?.block ? latestDepositRecord.block + 1 : 1422016
+    }
     // Call setupEventListeners initially
     await setupEventListeners(contract);
     
     // Set up interval to call setupEventListeners every 5 seconds
     setInterval(async () => {
-      // try {
+      try {
         await setupEventListeners(contract);
-      // } catch (error) {
-      //   console.error('Error in periodic setupEventListeners call:', error);
-      // }
+      } catch (error) {
+        console.error('Error in periodic setupEventListeners call:', error);
+      }
     }, 5000); // 5000 milliseconds = 5 seconds
     
     console.log(`Bot is running and listening for events on contract ${CONTRACT_ADDRESS}`);
-  // } catch (error) {
-  //   console.error('Error starting bot:', error);
-  //   setTimeout(startBot, 10000); // Retry after 10 seconds
-  // }
+  } catch (error) {
+    console.error('Error starting bot:', error);
+    setTimeout(startBot, 10000); // Retry after 10 seconds
+  }
 }
 
 // Handle process termination
