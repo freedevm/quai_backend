@@ -9,18 +9,35 @@ const app = express();
 
 // Connect to MongoDB
 connectDB()
-  .then(() => console.log('MongoDB connected'))
-  .catch((err) => console.error('MongoDB connection error:', err.message));
+  .then(() => console.log('MongoDB connected successfully'))
+  .catch((err) => {
+    console.error('MongoDB connection error:', err.message);
+    process.exit(1);
+  });
 
 // Middleware
 app.use(express.json());
-app.use(cors({ origin: 'http://localhost:3000' }));
+
+// CORS configuration
+const allowedOrigins = ['http://localhost:3000', 'https://quaifly.com'];
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS'));
+    },
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  })
+);
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/blackjack', blackjackRoutes);
 
-// Global error handler with more details
+// Global error handler
 app.use((err, req, res, next) => {
   console.error('Error occurred:', {
     message: err.message,
