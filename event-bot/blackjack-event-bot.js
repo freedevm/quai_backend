@@ -142,17 +142,13 @@ async function setupEventListeners(contract) {
 
       if (error.error.code == -32000)
         latestDepositRecordNumber += 10000;
-      
+
       console.log("Next start BlockNumber", latestDepositRecordNumber);
       throw error; // Or handle as needed
     }
 }
 
 // Main function to start the bot
-
-const initBot = async () {
-  
-}
 
 async function startBot() {
   try {
