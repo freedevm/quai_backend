@@ -53,7 +53,7 @@ async function setupEventListeners(contract) {
       events.sort((a, b) => a.blockNumber - b.blockNumber);
   
 
-      successLastBlockNumber = latestDepositRecord;
+      successLastBlockNumber = latestDepositRecordNumber;
       // Process all events
       if (events.length === 0) {
         console.log('No new Deposit events found.');
