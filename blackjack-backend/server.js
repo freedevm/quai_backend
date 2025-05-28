@@ -8,39 +8,28 @@ require('dotenv').config();
 const app = express();
 
 // Connect to MongoDB
-connectDB();
+connectDB()
+  .then(() => console.log('MongoDB connected'))
+  .catch((err) => console.error('MongoDB connection error:', err.message));
 
 // Middleware
 app.use(express.json());
-// CORS configuration
-const allowedOrigins = [
-  'https://quaifly.com',
-  'http://localhost:3000', // For local development
-];
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (e.g., mobile apps or curl)
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      return callback(new Error('Not allowed by CORS'));
-    },
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-    optionsSuccessStatus: 204,
-  })
-);
+app.use(cors({ origin: 'http://localhost:3000' }));
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/blackjack', blackjackRoutes);
 
-// Global error handler
+// Global error handler with more details
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
+  console.error('Error occurred:', {
+    message: err.message,
+    stack: err.stack,
+    url: req.url,
+    method: req.method,
+    body: req.body,
+  });
+  res.status(500).json({ error: 'Something went wrong!', details: err.message });
 });
 
 const PORT = process.env.PORT || 8080;
