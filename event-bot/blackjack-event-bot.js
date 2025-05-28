@@ -34,7 +34,7 @@ function parseWeiToString(weiAmount) {
   return weiAmount.toString();
 }
 
-let latestDepositRecord = await Deposit.findOne().sort({ _id: -1 });
+let latestDepositRecord;
 
 // Set up event listeners
 async function setupEventListeners(contract) {
@@ -161,6 +161,7 @@ async function startBot() {
     const contractBalance = await contract.getContractBalance()
     console.log("### contract balance => ", contractBalance)
     
+    latestDepositRecord = await Deposit.findOne().sort({ _id: -1 });
     // Call setupEventListeners initially
     await setupEventListeners(contract);
     
