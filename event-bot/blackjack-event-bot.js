@@ -141,6 +141,7 @@ async function setupEventListeners(contract) {
       console.error('Error in setupEventListeners:', error);
 
       latestDepositRecordNumber += 10000;
+      console.log("Next start BlockNumber", latestDepositRecordNumber);
       throw error; // Or handle as needed
     }
 }
