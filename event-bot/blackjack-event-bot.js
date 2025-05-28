@@ -148,7 +148,7 @@ async function setupEventListeners(contract) {
 
 // Main function to start the bot
 async function startBot() {
-  try {
+  // try {
     // Connect to MongoDB
     await connectDB();
     
@@ -177,10 +177,10 @@ async function startBot() {
     }, 5000); // 5000 milliseconds = 5 seconds
     
     console.log(`Bot is running and listening for events on contract ${CONTRACT_ADDRESS}`);
-  } catch (error) {
-    console.error('Error starting bot:', error);
-    setTimeout(startBot, 10000); // Retry after 10 seconds
-  }
+  // } catch (error) {
+  //   console.error('Error starting bot:', error);
+  //   setTimeout(startBot, 10000); // Retry after 10 seconds
+  // }
 }
 
 // Handle process termination
