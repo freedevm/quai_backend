@@ -19,19 +19,11 @@ connectDB()
 app.use(express.json());
 
 // CORS configuration
-const allowedOrigins = ['http://localhost:3000', 'https://quaifly.com'];
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      return callback(new Error('Not allowed by CORS'));
-    },
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: true, // Allow all origins temporarily for testing
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+}));
 
 // Routes
 app.use('/api/auth', authRoutes);
