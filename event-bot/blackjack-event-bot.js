@@ -101,6 +101,8 @@ async function setupEventListeners(contract) {
         // Log the latest processed block
         const latestBlock = events[events.length - 1].blockNumber;
         console.log('Latest processed block:', latestBlock);
+
+        latestDepositRecordNumber = successLastBlockNumber + 1;
       }
   
       // Set up real-time event listener for new Deposit events
@@ -136,7 +138,6 @@ async function setupEventListeners(contract) {
   
       console.log('Event listeners set up successfully.');
 
-      latestDepositRecordNumber = successLastBlockNumber + 1;
     } catch (error) {
       console.error('Error in setupEventListeners:', error);
 
