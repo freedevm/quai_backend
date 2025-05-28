@@ -169,11 +169,11 @@ async function startBot() {
     
     // Set up interval to call setupEventListeners every 5 seconds
     setInterval(async () => {
-      try {
+      // try {
         await setupEventListeners(contract);
-      } catch (error) {
-        console.error('Error in periodic setupEventListeners call:', error);
-      }
+      // } catch (error) {
+      //   console.error('Error in periodic setupEventListeners call:', error);
+      // }
     }, 5000); // 5000 milliseconds = 5 seconds
     
     console.log(`Bot is running and listening for events on contract ${CONTRACT_ADDRESS}`);
