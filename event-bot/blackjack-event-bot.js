@@ -34,7 +34,7 @@ function parseWeiToString(weiAmount) {
   return weiAmount.toString();
 }
 
-let latestDepositRecord;
+let latestDepositRecordNumber;
 
 // Set up event listeners
 async function setupEventListeners(contract) {
@@ -42,7 +42,7 @@ async function setupEventListeners(contract) {
   
     try {
       // Fetch the latest deposit record to determine the starting block
-      const startBlockNum = latestDepositRecord?.block ? latestDepositRecord.block + 1 : 1422016; // Start from the next block
+      const startBlockNum = latestDepositRecordNumber; // Start from the next block
       console.log('Starting block number:', startBlockNum);
   
       // Query past Deposit events
@@ -136,11 +136,11 @@ async function setupEventListeners(contract) {
   
       console.log('Event listeners set up successfully.');
 
-      latestDepositRecord?.block = successLastBlockNumber + 1;
+      latestDepositRecordNumber = successLastBlockNumber + 1;
     } catch (error) {
       console.error('Error in setupEventListeners:', error);
 
-      startBlockNum += 10000;
+      latestDepositRecordNumber += 10000;
       throw error; // Or handle as needed
     }
 }
@@ -161,7 +161,8 @@ async function startBot() {
     const contractBalance = await contract.getContractBalance()
     console.log("### contract balance => ", contractBalance)
     
-    latestDepositRecord = await Deposit.findOne().sort({ _id: -1 });
+    const latestDepositRecord = await Deposit.findOne().sort({ _id: -1 });
+    latestDepositRecordNumber =  latestDepositRecord?.block ? latestDepositRecord.block + 1 : 1422016
     // Call setupEventListeners initially
     await setupEventListeners(contract);
     
